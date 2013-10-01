@@ -1,0 +1,56 @@
+#!/usr/bin/env python
+
+from heapq import *
+from datetime import *
+
+class Trip:
+	def __init__(self, fromA, departure, arrival):
+		self.fromA = fromA
+		self.departure = departure
+		self.arrival = arrival
+
+	def __repr__(self):
+		return "%s %s %s" % ("A" if self.fromA else "B", self.departure.strftime("%H:%M"), self.arrival.strftime("%H:%M"))
+
+	def __lt__(self, other):
+		return self.departure < other.departure
+
+	def __le__(self, other):
+		return self.departure <= other.departure
+
+	def __gt__(self, other):
+		return self.departure > other.departure
+
+	def __ge__(self, other):
+		return self.departure >= other.departure
+
+	def __eq__(self, other):
+		return self.fromA == other.fromA and self.departure == other.departure
+
+	def __ne__(self, other):
+		return self.fromA != other.fromA or self.departure != other.departure
+
+for case in range(1,int(raw_input())+1):           #For all test cases
+	turnaround = timedelta(0,0,0,0,int(raw_input()))                        #Get the case searches size
+	sizes = raw_input().split(" ")
+	size_a,size_b = int(sizes[0]), int(sizes[1])
+
+	trips = []
+	for i in range(size_a+size_b):
+		times = raw_input().split(" ")
+		trips.append(Trip(i < size_a, datetime.strptime(times[0], "%H:%M"), datetime.strptime(times[1], "%H:%M")))
+
+	trips.sort()
+
+	start = [0, 0]
+	trains = [[], []]
+
+	for trip in trips:
+		d = 0 if trip.fromA else 1
+		if trains[d] and trains[d][0] <= trip.departure:
+			heappop(trains[d])
+		else:
+			start[d] += 1
+		heappush(trains[1 - d], trip.arrival+turnaround)
+
+	print "Case #%d: %d %d" % (case, start[0], start[1])
